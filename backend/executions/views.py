@@ -30,7 +30,7 @@ class ExecutionAllureAssetView(APIView):
 
 
 class TestExecutionViewSet(viewsets.ModelViewSet):
-    queryset = TestExecution.objects.select_related('project').all()
+    queryset = TestExecution.objects.select_related('project', 'testcase').prefetch_related('step_results').all()
     serializer_class = TestExecutionSerializer
 
     @action(detail=True, methods=['get'], url_path='html')
@@ -58,6 +58,7 @@ class TestExecutionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='run')
     def run_execution(self, request):
         project_id = request.data.get('project')
+        testcase_id = request.data.get('testcase')
         trigger_user = request.data.get('trigger_user', 'web-user')
         if not project_id:
             return Response({'detail': 'project is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -67,8 +68,16 @@ class TestExecutionViewSet(viewsets.ModelViewSet):
         except Project.DoesNotExist:
             return Response({'detail': 'project not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        testcase = None
+        if testcase_id:
+            try:
+                testcase = project.testcases.get(pk=testcase_id)
+            except project.testcases.model.DoesNotExist:
+                return Response({'detail': 'testcase not found in project'}, status=status.HTTP_404_NOT_FOUND)
+
         execution = TestExecution.objects.create(
             project=project,
+            testcase=testcase,
             trigger_user=trigger_user,
             status='PENDING',
             summary={},

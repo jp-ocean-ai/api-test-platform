@@ -37,7 +37,8 @@
           </el-col>
         </el-row>
         <el-form-item>
-          <el-button type="primary" @click="createCase">新增测试场景</el-button>
+          <el-button type="primary" @click="saveCase">{{ form.id ? '保存测试场景' : '新增测试场景' }}</el-button>
+          <el-button @click="resetCaseForm">清空</el-button>
           <el-button @click="loadAll">刷新</el-button>
         </el-form-item>
       </el-form>
@@ -62,6 +63,7 @@
         </el-table-column>
         <el-table-column label="操作" width="180">
           <template #default="scope">
+            <el-button size="small" @click="editCase(scope.row)">编辑场景</el-button>
             <el-button size="small" @click="selectCase(scope.row)">编辑步骤</el-button>
             <el-button size="small" type="danger" plain @click="removeCase(scope.row)">删除</el-button>
           </template>
@@ -224,34 +226,52 @@ const onProjectChange = () => {
   form.value.api = null
 }
 
-const createCase = async () => {
+const resetCaseForm = () => {
+  form.value = {
+    id: null,
+    project: form.value.project,
+    environment: null,
+    default_environment: null,
+    api: null,
+    name: '',
+    description: '',
+    request_data: {},
+    assertions: { status_code: 200 },
+    enabled: true,
+  }
+}
+
+const saveCase = async () => {
   if (!form.value.project || !form.value.name.trim()) {
     ElMessage.warning('请先填写项目和场景名称')
     return
   }
   try {
-    await client.post('testcases/', form.value)
-    ElMessage.success('测试场景创建成功')
-    form.value = {
-      project: form.value.project,
-      environment: null,
-      default_environment: null,
-      api: null,
-      name: '',
-      description: '',
-      request_data: {},
-      assertions: { status_code: 200 },
-      enabled: true,
+    if (form.value.id) {
+      await client.put(`testcases/${form.value.id}/`, form.value)
+      ElMessage.success('测试场景已更新')
+    } else {
+      await client.post('testcases/', form.value)
+      ElMessage.success('测试场景创建成功')
     }
+    resetCaseForm()
     await loadAll()
   } catch (error) {
-    ElMessage.error(error?.response?.data?.name?.[0] || error?.response?.data?.detail || '测试场景创建失败')
+    ElMessage.error(error?.response?.data?.name?.[0] || error?.response?.data?.detail || '测试场景保存失败')
   }
 }
 
 const selectCase = (row) => {
   selectedCase.value = row
   resetStepForm()
+}
+
+const editCase = (row) => {
+  form.value = {
+    ...row,
+    steps: undefined,
+  }
+  selectCase(row)
 }
 
 const resetStepForm = () => {

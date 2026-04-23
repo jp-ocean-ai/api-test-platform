@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+.venv/
+.env
+.env.*
+.pytest_cache/
+htmlcov/
+
+# Node
+node_modules/
+dist/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Reports
+reports/
+allure-results/
+allure-report/
+backend/runtime_tests/
+backend/reports/

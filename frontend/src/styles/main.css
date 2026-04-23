@@ -54,6 +54,12 @@ html, body, #app {
   flex-wrap: wrap;
 }
 
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .muted {
   color: #909399;
   font-size: 12px;

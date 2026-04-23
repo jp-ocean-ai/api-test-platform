@@ -11,7 +11,7 @@ from environments.views import EnvironmentViewSet
 from executions.views import ExecutionAllureAssetView, TestExecutionViewSet
 from projects.views import ProjectViewSet
 from reports.views import TestReportViewSet
-from testcases.views import TestCaseViewSet
+from testcases.views import TestCaseViewSet, TestStepViewSet
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -28,6 +28,7 @@ router.register('projects', ProjectViewSet)
 router.register('environments', EnvironmentViewSet)
 router.register('apis', ApiDefinitionViewSet)
 router.register('testcases', TestCaseViewSet)
+router.register('teststeps', TestStepViewSet)
 router.register('executions', TestExecutionViewSet)
 router.register('reports', TestReportViewSet)
 

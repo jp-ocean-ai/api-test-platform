@@ -26,7 +26,7 @@ def _to_python_literal(value: Any) -> str:
 
 def build_pytest_file(testcase: TestCase, report_file: Path) -> Path:
     api = testcase.api
-    env = testcase.environment
+    env = testcase.environment or testcase.default_environment
     base_url = env.base_url if env else 'http://127.0.0.1:8001'
     path = api.path
     if not path.startswith('/'):
@@ -72,7 +72,7 @@ def run_execution(execution: TestExecution) -> TestExecution:
     ALLURE_REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
     testcases = list(
-        TestCase.objects.select_related('api', 'environment', 'project')
+        TestCase.objects.select_related('api', 'environment', 'default_environment', 'project')
         .filter(project=execution.project, enabled=True)
         .order_by('id')
     )
